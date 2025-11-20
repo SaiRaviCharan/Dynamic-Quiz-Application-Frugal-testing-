@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Quiz Application</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header class="app-header">
+        <div class="brand-block">
+            <div class="brand-icon">QM</div>
+            <div class="brand-copy">
+                <h1>Quiz Master</h1>
+                <p>Capability assessments tailored for hiring pipelines</p>
+            </div>
+        </div>
+        <span class="status-pill status-pill--ready" id="statusPill">Awaiting Start</span>
+    </header>
+
+    <main class="app-shell">
+        <div class="container">
+            <!-- Landing Page -->
+            <div id="landingPage" class="page active">
+                <section class="landing-hero">
+                    <div class="hero-copy">
+                        <span class="hero-pill"><span class="pill-dot"></span>Instant quiz discovery</span>
+                        <h1 class="hero-title">Drop into a quiz.<br>Showcase interview-ready insight.</h1>
+                        <p class="hero-subtitle">Spin up tailored assessments that feel modern, on-brand, and ready for shortlisting rounds. Configure a track, invite candidates, and surface analytics without heavy lifting.</p>
+                        <div class="hero-actions">
+                            <button class="btn-primary hero-primary" onclick="document.getElementById('categorySelect').focus()">Browse Tracks</button>
+                            <button class="btn-secondary hero-secondary" onclick="startQuiz()">Quick Launch</button>
+                        </div>
+                        <div class="hero-highlights">
+                            <div class="highlight-card">
+                                <span class="highlight-value">05</span>
+                                <span class="highlight-label">Tracks curated</span>
+                            </div>
+                            <div class="highlight-card">
+                                <span class="highlight-value">45s</span>
+                                <span class="highlight-label">Per-question timer</span>
+                            </div>
+                            <div class="highlight-card">
+                                <span class="highlight-value">∞</span>
+                                <span class="highlight-label">Unlimited retakes</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-surface">
+                        <div class="hero-card">
+                            <div class="card-header">
+                                <span class="card-pill">Configuration</span>
+                                <h2>Launch a focussed assessment</h2>
+                                <p>Choose a track and challenge level, then hit start to brief candidates instantly.</p>
+                            </div>
+                            <div id="feedbackBanner" class="feedback-banner" role="status" aria-live="polite"></div>
+                            <div class="selection-section">
+                                <div class="form-group">
+                                    <label for="categorySelect">Select Track</label>
+                                    <select id="categorySelect">
+                                        <option value="">-- Choose a Track --</option>
+                                        <option value="ai">AI &amp; Machine Learning</option>
+                                        <option value="general">General Knowledge</option>
+                                        <option value="science">Science &amp; Technology</option>
+                                        <option value="history">History</option>
+                                        <option value="geography">Geography</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="difficultySelect">Select Difficulty</label>
+                                    <select id="difficultySelect">
+                                        <option value="">-- Choose Difficulty --</option>
+                                        <option value="easy">Foundation</option>
+                                        <option value="medium">Intermediate</option>
+                                        <option value="hard">Advanced</option>
+                                    </select>
+                                </div>
+
+                                <button id="startQuizBtn" class="btn-primary btn-full" onclick="startQuiz()">Start Now</button>
+                            </div>
+                            <div class="card-meta">
+                                <span>⏱ 45s cadence</span>
+                                <span>📊 Advanced analytics</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+        <!-- Quiz Page -->
+        <div id="quizPage" class="page">
+            <div class="quiz-header">
+                <div class="quiz-info">
+                    <span class="category-badge" id="categoryBadge"></span>
+                    <span class="difficulty-badge" id="difficultyBadge"></span>
+                </div>
+                <div class="timer-section" id="timerContainer">
+                    <div class="timer-ring" id="timerRing">
+                        <span class="timer-digits" id="timerDisplay">45</span>
+                    </div>
+                    <div class="timer-meta">
+                        <span class="timer-label">Per Question</span>
+                        <span class="timer-caption">seconds remaining</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quiz-content">
+                <div class="question-progress">
+                    <span id="questionNumber">Question 1 of 5</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div id="navigationStatus" class="nav-status" role="status" aria-live="polite"></div>
+                </div>
+
+                <div class="question-section">
+                    <h2 id="questionText"></h2>
+                    <div id="optionsContainer" class="options-grid"></div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn-secondary" onclick="previousQuestion()" id="prevBtn">Previous</button>
+                    <button class="btn-primary" onclick="nextQuestion()" id="nextBtn">Next</button>
+                    <button class="btn-submit" onclick="submitQuiz()" id="submitBtn" hidden>Submit Quiz</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Page -->
+        <div id="resultsPage" class="page">
+            <div class="results-header">
+                <h1>Quiz Results</h1>
+            </div>
+
+            <div class="results-content">
+                <div class="score-section">
+                    <div class="score-box">
+                        <div class="score-value" id="scoreValue">0%</div>
+                        <div class="score-label">Overall Score</div>
+                    </div>
+                    <div class="score-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Correct Answers:</span>
+                            <span class="detail-value correct" id="correctCount">0</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Incorrect Answers:</span>
+                            <span class="detail-value incorrect" id="incorrectCount">0</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Total Questions:</span>
+                            <span class="detail-value" id="totalCount">0</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Total Time:</span>
+                            <span class="detail-value" id="totalTime">0s</span>
+                        </div>
+                    </div>
+                    <div class="performance-summary" id="performanceSummary"></div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-container">
+                        <h3>Answer Distribution</h3>
+                        <canvas id="answerChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Time Spent Per Question</h3>
+                        <canvas id="timeChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="detailed-results" id="detailedResults">
+                    <div class="detailed-results__head">
+                        <h3>Question Breakdown</h3>
+                        <p>Review accuracy and pacing for each prompt.</p>
+                    </div>
+                    <div class="detailed-results__list" id="breakdownList">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+                
+                <div class="navigation-buttons navigation-buttons--center">
+                    <button class="btn-primary" onclick="restartQuiz()">Launch Another Quiz</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </main>
+
+    <footer class="app-footer">
+        <p>&copy; 2025 QuizApp Built By Sai Ravi Charan Neerumalla. All rights reserved.</p>
+    </footer>
+    <script src="data.js"></script>
+    <script src="quiz.js"></script>
+</body>
+</html>
+
+
